@@ -1,0 +1,157 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-side: var(--side);
+  --color-side-ink: var(--side-ink);
+  --color-side-muted: var(--side-muted);
+  --color-side-active: var(--side-active);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-head);
+  --font-mono: var(--font-code);
+}
+
+/* ── Vista Admin: ERP claro, azul marino (como tu CV) ── */
+:root,
+[data-mode="admin"] {
+  --bg: #f3f5f9;
+  --surface: #ffffff;
+  --surface-2: #eef1f7;
+  --ink: #14213d;
+  --muted: #5d6781;
+  --line: #e1e6ef;
+  --accent: #2456d6;
+  --accent-ink: #ffffff;
+  --accent-soft: #e6edfd;
+  --ok: #15803d;
+  --ok-soft: #dcf5e4;
+  --warn: #b45309;
+  --warn-soft: #fdf0dc;
+  --side: #14213d;
+  --side-ink: #ffffff;
+  --side-muted: #9aa7c4;
+  --side-active: rgba(255, 255, 255, 0.1);
+  --font-body: var(--font-inter), system-ui, sans-serif;
+  --font-head: var(--font-poppins), var(--font-inter), system-ui, sans-serif;
+  --font-code: var(--font-jetbrains), ui-monospace, monospace;
+  color-scheme: light;
+}
+
+/* ── Vista Dev: terminal oscura ── */
+[data-mode="dev"] {
+  --bg: #0a0e13;
+  --surface: #10161e;
+  --surface-2: #161d27;
+  --ink: #e6edf3;
+  --muted: #8b98a9;
+  --line: #222c38;
+  --accent: #7ee787;
+  --accent-ink: #0a0e13;
+  --accent-soft: rgba(126, 231, 135, 0.12);
+  --ok: #7ee787;
+  --ok-soft: rgba(126, 231, 135, 0.12);
+  --warn: #f2cc60;
+  --warn-soft: rgba(242, 204, 96, 0.12);
+  --side: #0d1218;
+  --side-ink: #e6edf3;
+  --side-muted: #6e7b8c;
+  --side-active: rgba(126, 231, 135, 0.1);
+  --font-body: var(--font-jetbrains), ui-monospace, monospace;
+  --font-head: var(--font-jetbrains), ui-monospace, monospace;
+  --font-code: var(--font-jetbrains), ui-monospace, monospace;
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+body {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Transición suave solo mientras se cambia de vista */
+html.mode-anim *,
+html.mode-anim *::before,
+html.mode-anim *::after {
+  transition:
+    background-color 0.5s ease,
+    border-color 0.5s ease,
+    color 0.5s ease,
+    fill 0.5s ease !important;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.grow-x {
+  transform-origin: left;
+  animation: grow-x 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+.caret::after {
+  content: "▋";
+  margin-left: 2px;
+  animation: blink 1s steps(1) infinite;
+  color: var(--accent);
+}
+
+@keyframes pulse-dot {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 60%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+}
+.pulse-dot {
+  animation: pulse-dot 1.6s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
