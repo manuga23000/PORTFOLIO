@@ -30,7 +30,7 @@ Todo está en **`src/data/profile.ts`**: perfil, skills, proyectos, timeline y m
 
 - `linkedin` / `github`: completalos y aparecen en Turnos.
 - `projects[].uses`: qué skills usa cada proyecto. Con esto se calcula el "stock" del Inventario, así que revisalo para que refleje lo que usaste de verdad.
-- Foto: `public/emanuel.jpg` · CV: `public/cv-emanuel-alessi.pdf`
+- Foto: `public/emanuel-alessi.jpg` · CV: `public/cv-emanuel-alessi.pdf`
 
 ## Links útiles
 

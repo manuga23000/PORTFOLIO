@@ -13,7 +13,7 @@ export const profile = {
   email: "emanuelalessi14@gmail.com",
   linkedin: "", // ej: "https://www.linkedin.com/in/tu-usuario"
   github: "", // ej: "https://github.com/tu-usuario"
-  photo: "/emanuel.jpg",
+  photo: "/emanuel-alessi.jpg",
   cv: "/cv-emanuel-alessi.pdf",
   devSince: "2023-07",
   status: "Disponible para entrevistas",

@@ -9,7 +9,7 @@ export const contentType = "image/png";
 
 // Imagen que muestra LinkedIn/WhatsApp al compartir el link.
 export default async function OpengraphImage() {
-  const photo = await readFile(join(process.cwd(), "public", "emanuel.jpg"));
+  const photo = await readFile(join(process.cwd(), "public", "emanuel-alessi.jpg"));
   const photoSrc = `data:image/jpeg;base64,${photo.toString("base64")}`;
 
   const kpis = [
