@@ -32,6 +32,23 @@ Todo está en **`src/data/profile.ts`**: perfil, skills, proyectos, timeline y m
 - `projects[].uses`: qué skills usa cada proyecto. Con esto se calcula el "stock" del Inventario, así que revisalo para que refleje lo que usaste de verdad.
 - Foto: `public/emanuel-alessi.jpg` · CV: `public/cv-emanuel-alessi.pdf`
 
+## Panel de administrador (subir capturas)
+
+Entrá a **`/admin`** con la contraseña (variable `ADMIN_PASSWORD` en Vercel). Con la sesión iniciada, en **Facturación** cada proyecto muestra **Subir capturas**: las imágenes se guardan en Vercel Blob y aparecen al instante, sin tocar código.
+
+Requisitos en Vercel (una sola vez):
+1. *Storage → Create → Blob* (acceso **Public**) y conectarlo al proyecto `portfolio`. Esto crea `BLOB_READ_WRITE_TOKEN` solo.
+2. *Settings → Environment Variables*: `ADMIN_PASSWORD` (8+ caracteres).
+3. *Analytics → Enable* para el contador de visitas.
+
+## Idiomas
+
+Español e inglés (botón **ES/EN**). Si el navegador del visitante no está en español, entra en inglés. Los textos de la interfaz están en `src/i18n/dict.ts` y las traducciones de tus datos en `src/data/en.ts`. Link directo: `?lang=en`.
+
+## Buscador
+
+**Ctrl+K** (o **/**) abre el buscador: páginas, proyectos, habilidades y acciones (descargar CV, cambiar tema/idioma, WhatsApp…).
+
 ## Links útiles
 
 - `/?modo=dev` o `/panel?modo=dev` abre directo en la Vista Dev (sirve para compartir).

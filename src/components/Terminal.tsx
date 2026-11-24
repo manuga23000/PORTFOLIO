@@ -1,38 +1,34 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { profile, projects, skills } from "@/data/profile";
-
-const tech = skills.filter((s) => s.category === "tech").map((s) => s.name);
-
-const script: { cmd: string; out: string[] }[] = [
-  { cmd: "whoami", out: [`${profile.shortName.toLowerCase().replace(" ", "-")} — full stack dev + administración`] },
-  {
-    cmd: "cat stack.json",
-    out: [
-      "{",
-      `  "front": ["React", "Next.js", "TypeScript"],`,
-      `  "back":  ["Node.js", "Express", "Firebase"],`,
-      `  "db":    ["PostgreSQL", "MongoDB"],`,
-      `  "extra": ["Git", "WordPress", "Excel"]`,
-      "}",
-    ],
-  },
-  {
-    cmd: "ls ./proyectos",
-    out: [projects.map((p) => p.id).join("  ")],
-  },
-  { cmd: "echo $SUPERPODER", out: ["entiendo el negocio detrás del código 💼 + 💻"] },
-];
+import { useI18n } from "@/i18n";
 
 export function Terminal() {
+  const { t, data, lang } = useI18n();
+  const tech = data.skills.filter((s) => s.category === "tech").map((s) => s.name);
+  const script: { cmd: string; out: string[] }[] = [
+    { cmd: "whoami", out: [`${data.profile.shortName.toLowerCase().replace(" ", "-")} — ${t.terminal.whoami}`] },
+    {
+      cmd: "cat stack.json",
+      out: [
+        "{",
+        `  "front": ["React", "Next.js", "TypeScript"],`,
+        `  "back":  ["Node.js", "Express", "Firebase"],`,
+        `  "db":    ["PostgreSQL", "MongoDB"],`,
+        `  "extra": ["Git", "WordPress", "Excel"]`,
+        "}",
+      ],
+    },
+    { cmd: lang === "en" ? "ls ./projects" : "ls ./proyectos", out: [data.projects.map((p) => p.id).join("  ")] },
+    { cmd: lang === "en" ? "echo $SUPERPOWER" : "echo $SUPERPODER", out: [t.terminal.power] },
+  ];
   const [lines, setLines] = useState(0);
   const total = script.length;
 
   useEffect(() => {
     if (lines >= total) return;
-    const t = window.setTimeout(() => setLines((l) => l + 1), lines === 0 ? 250 : 650);
-    return () => window.clearTimeout(t);
+    const id = window.setTimeout(() => setLines((l) => l + 1), lines === 0 ? 250 : 650);
+    return () => window.clearTimeout(id);
   }, [lines, total]);
 
   return (
@@ -45,7 +41,7 @@ export function Terminal() {
       </div>
       <div className="min-h-[260px] overflow-x-auto p-4">
         {script.slice(0, lines).map((s) => (
-          <div key={s.cmd} className="rise mb-2">
+          <div key={`${lang}-${s.cmd}`} className="rise mb-2">
             <p>
               <span className="text-[#7ee787]">➜</span> <span className="text-[#79c0ff]">~</span> {s.cmd}
             </p>
@@ -59,7 +55,9 @@ export function Terminal() {
         <p className={lines >= total ? "caret" : ""}>
           <span className="text-[#7ee787]">➜</span> <span className="text-[#79c0ff]">~</span>
         </p>
-        <p className="sr-only">Tecnologías: {tech.join(", ")}</p>
+        <p className="sr-only">
+          {t.terminal.tech}: {tech.join(", ")}
+        </p>
       </div>
     </div>
   );

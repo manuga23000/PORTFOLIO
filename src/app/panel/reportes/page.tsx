@@ -4,27 +4,22 @@ import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { useMode } from "@/components/ModeProvider";
 import { Card, CardHeader } from "@/components/ui";
-import { profile, projects, skills, timeline } from "@/data/profile";
-
-const stepsAdmin = [
-  "Consultando legajo del candidato",
-  `Procesando ${timeline.length} registros de experiencia y formación`,
-  `Valorizando inventario (${skills.length} habilidades)`,
-  `Adjuntando ${projects.length} comprobantes de proyectos`,
-  "Compilando reporte PDF",
-];
-const stepsDev = [
-  "$ npm run build:cv",
-  `✓ compiled ${timeline.length} modules (experiencia)`,
-  `✓ bundled ${skills.length} skills`,
-  `✓ linked ${projects.length} projects`,
-  "✓ cv-emanuel-alessi.pdf ready",
-];
+import { fmt, useI18n } from "@/i18n";
 
 export default function ReportesPage() {
   const { mode } = useMode();
+  const { t, data } = useI18n();
+  const { profile, projects, skills, timeline } = data;
   const dev = mode === "dev";
-  const steps = dev ? stepsDev : stepsAdmin;
+  const counts = { t: timeline.length, s: skills.length, p: projects.length };
+  const stepsDev = [
+    "$ npm run build:cv",
+    `✓ compiled ${counts.t} modules (experience)`,
+    `✓ bundled ${counts.s} skills`,
+    `✓ linked ${counts.p} projects`,
+    "✓ cv-emanuel-alessi.pdf ready",
+  ];
+  const steps = dev ? stepsDev : t.report.steps.map((x) => fmt(x, counts));
   const [state, setState] = useState<"idle" | "running" | "done">("idle");
   const [done, setDone] = useState(0);
   const timers = useRef<number[]>([]);
@@ -44,21 +39,21 @@ export default function ReportesPage() {
   return (
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_1fr]">
       <Card>
-        <CardHeader title={dev ? "build" : "Generar reporte del candidato"} hint="CV actualizado en formato PDF" />
+        <CardHeader title={dev ? "build" : t.report.title} hint={t.report.hint} />
         <div className="p-5">
           {state === "idle" && (
             <button
               onClick={generate}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3.5 font-display font-semibold text-accent-ink"
             >
-              <Icon name="file" className="size-5" /> {dev ? "npm run build:cv" : "Generar reporte"}
+              <Icon name="file" className="size-5" /> {dev ? "npm run build:cv" : t.report.generate}
             </button>
           )}
 
           {state !== "idle" && (
             <>
               <div className="flex items-center justify-between text-xs text-muted">
-                <span>{state === "done" ? (dev ? "build ok" : "Reporte listo") : dev ? "building…" : "Generando…"}</span>
+                <span>{state === "done" ? (dev ? "build ok" : t.report.ready) : dev ? "building…" : t.report.running}</span>
                 <span className="tabular-nums">{progress}%</span>
               </div>
               <div className="mt-2 h-2 overflow-hidden rounded-full bg-surface-2">
@@ -85,6 +80,8 @@ export default function ReportesPage() {
             </>
           )}
 
+          {t.report.langNote && <p className="mt-4 text-xs text-muted">ℹ️ {t.report.langNote}</p>}
+
           {state === "done" && (
             <div className="rise mt-6 flex flex-col gap-2 sm:flex-row">
               <a
@@ -92,7 +89,7 @@ export default function ReportesPage() {
                 download
                 className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-accent-ink"
               >
-                <Icon name="download" className="size-4" /> Descargar PDF
+                <Icon name="download" className="size-4" /> {t.report.download}
               </a>
               <a
                 href={profile.cv}
@@ -100,7 +97,7 @@ export default function ReportesPage() {
                 rel="noopener noreferrer"
                 className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-line px-4 py-3 text-sm font-semibold"
               >
-                <Icon name="external" className="size-4" /> Abrir
+                <Icon name="external" className="size-4" /> {t.report.open}
               </a>
             </div>
           )}
@@ -109,7 +106,7 @@ export default function ReportesPage() {
 
       {/* Mini vista previa del reporte */}
       <Card className="p-5">
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted">Vista previa</p>
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted">{t.report.preview}</p>
         <div
           className={`mt-3 overflow-hidden rounded-lg border border-line bg-white p-5 text-[#14213d] shadow-inner transition-all duration-700 ${
             state === "done" ? "opacity-100" : "opacity-60 blur-[1.5px]"

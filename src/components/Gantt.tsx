@@ -1,6 +1,6 @@
 "use client";
 
-import { timeline } from "@/data/profile";
+import { useI18n } from "@/i18n";
 
 const START = { y: 2023, m: 1 };
 const END = { y: 2027, m: 1 };
@@ -11,6 +11,8 @@ function toIndex(ym: string) {
 }
 
 export function Gantt() {
+  const { t, data } = useI18n();
+  const timeline = data.timeline;
   const total = (END.y - START.y) * 12;
   const now = new Date();
   const nowIdx = Math.min(total, (now.getFullYear() - START.y) * 12 + now.getMonth());
@@ -65,7 +67,7 @@ export function Gantt() {
           <div className="relative flex-1">
             <span className="absolute -top-1 bottom-0 w-0.5 bg-ok" style={{ left: pct(nowIdx) }}>
               <span className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-ok px-1 text-[9px] font-bold text-ok-ink">
-                HOY
+                {t.gantt.today}
               </span>
             </span>
           </div>
@@ -74,10 +76,10 @@ export function Gantt() {
 
       <div className="mt-4 flex flex-wrap gap-4 text-[11px] text-muted">
         <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-5 rounded-sm bg-accent" /> Trabajo
+          <span className="h-2.5 w-5 rounded-sm bg-accent" /> {t.gantt.work}
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-5 rounded-sm border border-dashed border-accent bg-accent-soft" /> Formación
+          <span className="h-2.5 w-5 rounded-sm border border-dashed border-accent bg-accent-soft" /> {t.gantt.study}
         </span>
       </div>
     </div>

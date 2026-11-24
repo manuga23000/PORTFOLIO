@@ -1,27 +1,33 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useMemo, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { useMode } from "@/components/ModeProvider";
 import { Badge, Card } from "@/components/ui";
-import { projects, skills, skillUsage, type SkillCategory } from "@/data/profile";
+import type { SkillCategory } from "@/data/profile";
+import { fmt, useI18n } from "@/i18n";
 
 type Filter = "all" | SkillCategory;
 
-export default function InventarioPage() {
+function Inventory() {
   const { mode } = useMode();
-  const [filter, setFilter] = useState<Filter>(mode === "dev" ? "tech" : "all");
-  const [q, setQ] = useState("");
+  const { t, data } = useI18n();
+  const params = useSearchParams();
+  const initialQ = params.get("q") ?? "";
+  const [filter, setFilter] = useState<Filter>(initialQ ? "all" : mode === "dev" ? "tech" : "all");
+  const [q, setQ] = useState(initialQ);
+  const skills = data.skills;
 
   const rows = useMemo(() => {
-    const list = skills
-      .map((s) => ({ ...s, stock: skillUsage(s.name) }))
+    const needle = q.toLowerCase();
+    return skills
       .filter((s) => (filter === "all" ? true : s.category === filter))
-      .filter((s) => (q ? `${s.name} ${s.group} ${s.sku}`.toLowerCase().includes(q.toLowerCase()) : true));
-    return list.sort((a, b) => b.stock - a.stock);
-  }, [filter, q]);
+      .filter((s) => (needle ? `${s.name} ${s.group} ${s.sku}`.toLowerCase().includes(needle) : true))
+      .sort((a, b) => b.stock - a.stock);
+  }, [filter, q, skills]);
 
-  const max = Math.max(...skills.map((s) => skillUsage(s.name)), 1);
+  const max = Math.max(...skills.map((s) => s.stock), 1);
   const filters: { id: Filter; label: string }[] =
     mode === "dev"
       ? [
@@ -30,21 +36,23 @@ export default function InventarioPage() {
           { id: "all", label: "*" },
         ]
       : [
-          { id: "all", label: "Todos" },
-          { id: "admin", label: "Administración" },
-          { id: "tech", label: "Tecnología" },
+          { id: "all", label: t.inv.filters.all },
+          { id: "admin", label: t.inv.filters.admin },
+          { id: "tech", label: t.inv.filters.tech },
         ];
+
+  const stats = [
+    { label: mode === "dev" ? "items" : t.inv.stats[0], value: skills.length },
+    { label: mode === "dev" ? "tech" : t.inv.stats[1], value: skills.filter((s) => s.category === "tech").length },
+    { label: mode === "dev" ? "business" : t.inv.stats[2], value: skills.filter((s) => s.category === "admin").length },
+  ];
 
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-3 gap-3">
-        {[
-          { label: mode === "dev" ? "items" : "Artículos", value: skills.length },
-          { label: mode === "dev" ? "tech" : "Tecnología", value: skills.filter((s) => s.category === "tech").length },
-          { label: mode === "dev" ? "business" : "Gestión", value: skills.filter((s) => s.category === "admin").length },
-        ].map((s) => (
+        {stats.map((s) => (
           <Card key={s.label} className="p-4">
-            <p className="text-xs text-muted">{s.label}</p>
+            <p className="truncate text-xs text-muted">{s.label}</p>
             <p className="mt-1 font-display text-2xl font-bold tabular-nums">{s.value}</p>
           </Card>
         ))}
@@ -57,9 +65,7 @@ export default function InventarioPage() {
               <button
                 key={f.id}
                 onClick={() => setFilter(f.id)}
-                className={`rounded-md px-3 py-1.5 transition-colors ${
-                  filter === f.id ? "bg-surface text-ink shadow-sm" : "text-muted hover:text-ink"
-                }`}
+                className={`rounded-md px-3 py-1.5 transition-colors ${filter === f.id ? "bg-surface text-ink shadow-sm" : "text-muted hover:text-ink"}`}
               >
                 {f.label}
               </button>
@@ -70,7 +76,7 @@ export default function InventarioPage() {
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder={mode === "dev" ? "grep…" : "Buscar artículo…"}
+              placeholder={mode === "dev" ? "grep…" : t.inv.search}
               className="w-full bg-transparent outline-none placeholder:text-muted"
             />
           </label>
@@ -81,11 +87,11 @@ export default function InventarioPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-line text-left text-[11px] uppercase tracking-wider text-muted">
-                <th className="px-5 py-3 font-semibold">SKU</th>
-                <th className="px-5 py-3 font-semibold">Artículo</th>
-                <th className="px-5 py-3 font-semibold">Rubro</th>
-                <th className="px-5 py-3 font-semibold">Stock · uso en proyectos</th>
-                <th className="px-5 py-3 font-semibold">Estado</th>
+                {t.inv.cols.map((c) => (
+                  <th key={c} className="px-5 py-3 font-semibold">
+                    {c}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
@@ -126,17 +132,16 @@ export default function InventarioPage() {
           ))}
         </ul>
 
-        {rows.length === 0 && <p className="p-8 text-center text-sm text-muted">Sin resultados para “{q}”.</p>}
+        {rows.length === 0 && <p className="p-8 text-center text-sm text-muted">{fmt(t.inv.empty, { q })}</p>}
 
-        <p className="border-t border-line px-5 py-3 text-xs text-muted">
-          El stock se calcula automáticamente: cuántos de los {projects.length} proyectos entregados usan cada habilidad.
-        </p>
+        <p className="border-t border-line px-5 py-3 text-xs text-muted">{fmt(t.inv.footer, { n: data.projects.length })}</p>
       </Card>
     </div>
   );
 }
 
 function StockBar({ value, max, delay }: { value: number; max: number; delay: number }) {
+  const { t } = useI18n();
   return (
     <div className="flex items-center gap-3">
       <div className="h-2 w-full max-w-48 overflow-hidden rounded-full bg-surface-2">
@@ -146,14 +151,23 @@ function StockBar({ value, max, delay }: { value: number; max: number; delay: nu
         />
       </div>
       <span className="w-20 shrink-0 text-xs tabular-nums text-muted">
-        {value} {value === 1 ? "proyecto" : "proyectos"}
+        {value} {value === 1 ? t.inv.project : t.inv.projects}
       </span>
     </div>
   );
 }
 
 function StockBadge({ stock }: { stock: number }) {
-  if (stock >= 3) return <Badge tone="ok">Alta rotación</Badge>;
-  if (stock >= 1) return <Badge tone="accent">En stock</Badge>;
-  return <Badge tone="neutral">Disponible</Badge>;
+  const { t } = useI18n();
+  if (stock >= 3) return <Badge tone="ok">{t.inv.high}</Badge>;
+  if (stock >= 1) return <Badge tone="accent">{t.inv.inStock}</Badge>;
+  return <Badge tone="neutral">{t.inv.available}</Badge>;
+}
+
+export default function InventarioPage() {
+  return (
+    <Suspense>
+      <Inventory />
+    </Suspense>
+  );
 }

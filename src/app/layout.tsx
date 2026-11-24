@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { Inter, Poppins, JetBrains_Mono } from "next/font/google";
 import { ModeProvider } from "@/components/ModeProvider";
 import { profile } from "@/data/profile";
@@ -36,8 +37,8 @@ export const viewport: Viewport = {
   themeColor: "#14213d",
 };
 
-// Aplica la vista guardada (o ?modo=dev) y el tema claro/oscuro antes del primer pintado, sin parpadeo.
-const modeScript = `(function(){try{var q=new URLSearchParams(location.search).get('modo');var m=(q==='dev'||q==='admin')?q:localStorage.getItem('modo');if(m==='dev'||m==='admin'){document.documentElement.dataset.mode=m;if(q)localStorage.setItem('modo',m)}var t=localStorage.getItem('tema');if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t}catch(e){}})();`;
+// Aplica la vista guardada (o ?modo=dev) y el tema claro/oscuro y el idioma (o ?lang=en) antes del primer pintado, sin parpadeo.
+const modeScript = `(function(){try{var q=new URLSearchParams(location.search).get('modo');var m=(q==='dev'||q==='admin')?q:localStorage.getItem('modo');if(m==='dev'||m==='admin'){document.documentElement.dataset.mode=m;if(q)localStorage.setItem('modo',m)}var l=new URLSearchParams(location.search).get('lang');if(l==='es'||l==='en')localStorage.setItem('idioma',l);else l=localStorage.getItem('idioma');if(l!=='es'&&l!=='en')l=(navigator.language||'es').toLowerCase().indexOf('es')===0?'es':'en';document.documentElement.lang=l;var t=localStorage.getItem('tema');if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t}catch(e){}})();`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
@@ -53,6 +54,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body>
         <ModeProvider>{children}</ModeProvider>
+        <Analytics />
       </body>
     </html>
   );

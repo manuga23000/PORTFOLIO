@@ -3,18 +3,22 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { Gallery } from "@/components/Gallery";
 import { Icon } from "@/components/Icon";
 import { useMode } from "@/components/ModeProvider";
 import { Badge, Card } from "@/components/ui";
-import { profile, projects, type Project } from "@/data/profile";
+import type { Project } from "@/data/profile";
+import { useI18n } from "@/i18n";
+import { useScreenshots } from "@/lib/client-store";
 
 function Invoice({ p }: { p: Project }) {
+  const { t, data } = useI18n();
   return (
     <article className="rise overflow-hidden rounded-2xl border border-line bg-surface">
       <div className="flex items-start justify-between gap-4 border-b border-dashed border-line p-5">
         <div>
           <p className="font-display text-lg font-bold">{p.name}</p>
-          <p className="text-xs text-muted">Emitida por {profile.name}</p>
+          <p className="text-xs text-muted">{t.bill.issuedBy} {data.profile.name}</p>
         </div>
         <div className="text-right">
           <span className="grid size-10 place-items-center rounded-lg border-2 border-ink font-display text-lg font-bold">C</span>
@@ -23,31 +27,32 @@ function Invoice({ p }: { p: Project }) {
 
       <dl className="grid grid-cols-2 gap-4 border-b border-dashed border-line p-5 text-sm">
         <div>
-          <dt className="text-[11px] uppercase tracking-wider text-muted">Comprobante N°</dt>
+          <dt className="text-[11px] uppercase tracking-wider text-muted">{t.bill.number}</dt>
           <dd className="font-mono font-semibold">{p.number}</dd>
         </div>
         <div>
-          <dt className="text-[11px] uppercase tracking-wider text-muted">Período</dt>
+          <dt className="text-[11px] uppercase tracking-wider text-muted">{t.bill.period}</dt>
           <dd className="font-semibold">{p.date}</dd>
         </div>
         <div>
-          <dt className="text-[11px] uppercase tracking-wider text-muted">Cliente</dt>
+          <dt className="text-[11px] uppercase tracking-wider text-muted">{t.bill.client}</dt>
           <dd className="font-semibold">{p.client}</dd>
         </div>
         <div>
-          <dt className="text-[11px] uppercase tracking-wider text-muted">Modalidad</dt>
+          <dt className="text-[11px] uppercase tracking-wider text-muted">{t.bill.modality}</dt>
           <dd className="font-semibold">{p.modality}</dd>
         </div>
       </dl>
 
       <div className="p-5">
         <p className="text-sm text-muted">{p.summary}</p>
+        <Gallery projectId={p.id} projectName={p.name} />
         <table className="mt-4 w-full text-sm">
           <thead>
             <tr className="border-b border-line text-left text-[11px] uppercase tracking-wider text-muted">
-              <th className="pb-2 font-semibold">Cant.</th>
-              <th className="pb-2 font-semibold">Detalle</th>
-              <th className="pb-2 text-right font-semibold">Estado</th>
+              <th className="pb-2 font-semibold">{t.bill.qty}</th>
+              <th className="pb-2 font-semibold">{t.bill.detail}</th>
+              <th className="pb-2 text-right font-semibold">{t.bill.status}</th>
             </tr>
           </thead>
           <tbody>
@@ -72,8 +77,8 @@ function Invoice({ p }: { p: Project }) {
         </div>
 
         <div className="mt-5 flex items-center justify-between rounded-xl bg-surface-2 px-4 py-3">
-          <span className="text-sm font-semibold">Total</span>
-          <span className="font-display font-bold text-ok">Entregado y en uso ✓</span>
+          <span className="text-sm font-semibold">{t.bill.total}</span>
+          <span className="font-display font-bold text-ok">{t.bill.totalValue}</span>
         </div>
 
         {p.url && (
@@ -83,7 +88,7 @@ function Invoice({ p }: { p: Project }) {
             rel="noopener noreferrer"
             className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-accent-ink"
           >
-            Ver en producción <Icon name="external" className="size-4" />
+            {t.bill.viewLive} <Icon name="external" className="size-4" />
           </a>
         )}
       </div>
@@ -110,6 +115,7 @@ function Deploy({ p }: { p: Project }) {
           {p.summary}
           <span className="text-accent">{" */"}</span>
         </p>
+        <Gallery projectId={p.id} projectName={p.name} />
         <div>
           <p className="text-xs text-muted">{"## features"}</p>
           <ul className="mt-1 space-y-1">
@@ -144,6 +150,9 @@ function Detail({ p }: { p: Project }) {
 
 function Billing() {
   const { mode } = useMode();
+  const { t, data } = useI18n();
+  const { screenshots } = useScreenshots();
+  const projects = data.projects;
   const router = useRouter();
   const params = useSearchParams();
   const selectedId = params.get("p") ?? projects[0].id;
@@ -157,7 +166,7 @@ function Billing() {
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_1.05fr]">
       <Card className="self-start">
         <div className="flex items-center justify-between border-b border-line px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted">
-          <span>{mode === "dev" ? "repos" : "Comprobantes"}</span>
+          <span>{mode === "dev" ? "repos" : t.bill.list}</span>
           <span>{projects.length}</span>
         </div>
         <ul className="divide-y divide-line">
@@ -185,7 +194,13 @@ function Billing() {
                       {mode === "dev" ? p.stackLabel.join(" · ") : `N° ${p.number} · ${p.client}`}
                     </span>
                   </span>
-                  <Badge tone="ok">{mode === "dev" ? "shipped" : "Entregada"}</Badge>
+                  {(screenshots[p.id]?.length ?? 0) > 0 && (
+                    <span className="hidden items-center gap-1 text-[11px] text-muted sm:flex" title={t.gallery.title}>
+                      <Icon name="image" className="size-3.5" />
+                      {screenshots[p.id].length}
+                    </span>
+                  )}
+                  <Badge tone="ok">{mode === "dev" ? "shipped" : t.bill.delivered}</Badge>
                 </button>
                 {/* En mobile el detalle se abre debajo, tipo acordeón */}
                 {active && (
@@ -206,9 +221,9 @@ function Billing() {
       </div>
 
       <p className="text-xs text-muted lg:col-span-2">
-        ¿Querés que el próximo comprobante sea para tu empresa?{" "}
+        {t.bill.footer}{" "}
         <Link href="/panel/turnos" className="font-semibold text-accent">
-          Reservá un turno →
+          {t.bill.footerCta}
         </Link>
       </p>
     </div>

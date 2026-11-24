@@ -1,18 +1,20 @@
 "use client";
 
+import { useI18n } from "@/i18n";
 import { useMode } from "./ModeProvider";
 
 /** Botón ☀️/🌙. En la Vista Dev no se muestra: la terminal siempre es oscura. */
 export function ThemeToggle() {
   const { mode, theme, toggleTheme } = useMode();
+  const { t } = useI18n();
   if (mode === "dev") return null;
   const dark = theme === "dark";
 
   return (
     <button
       onClick={toggleTheme}
-      aria-label={dark ? "Activar modo día" : "Activar modo noche"}
-      title={dark ? "Modo día" : "Modo noche"}
+      aria-label={dark ? t.switches.toLight : t.switches.toDark}
+      title={dark ? t.switches.toLight : t.switches.toDark}
       className="relative grid size-9 shrink-0 place-items-center overflow-hidden rounded-full border border-line bg-surface text-muted transition-colors hover:text-ink"
     >
       {/* Sol */}

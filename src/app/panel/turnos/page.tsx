@@ -4,28 +4,32 @@ import { useState } from "react";
 import { Icon } from "@/components/Icon";
 import { useMode } from "@/components/ModeProvider";
 import { Card, CardHeader } from "@/components/ui";
-import { profile } from "@/data/profile";
-
-const reasons = ["Entrevista laboral", "Propuesta de trabajo", "Proyecto freelance", "Consulta"];
-const slots = ["Mañana", "Mediodía", "Tarde"];
+import { useI18n } from "@/i18n";
 
 export default function TurnosPage() {
   const { mode } = useMode();
+  const { t, data } = useI18n();
+  const profile = data.profile;
   const dev = mode === "dev";
-  const [form, setForm] = useState({ name: "", company: "", reason: reasons[0], date: "", slot: slots[0], message: "" });
+  // Motivo y franja se guardan como índice: sobreviven al cambio de idioma.
+  const [form, setForm] = useState({ name: "", company: "", reason: 0, date: "", slot: 0, message: "" });
   const [ticket, setTicket] = useState<string | null>(null);
 
-  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+  const set = (k: "name" | "company" | "date" | "message") => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
 
+  const reason = t.book.reasons[form.reason];
+  const slot = t.book.slots[form.slot];
+
   function buildMessage() {
+    const m = t.book.msg;
     const lines: (string | null)[] = [
-      "Hola Emanuel! Vi tu portfolio y quiero reservar un turno.",
+      m.hello,
       "",
-      `• Nombre: ${form.name}`,
-      form.company ? `• Empresa: ${form.company}` : null,
-      `• Motivo: ${form.reason}`,
-      form.date ? `• Fecha preferida: ${new Date(form.date + "T12:00").toLocaleDateString("es-AR")} (${form.slot})` : null,
+      `• ${m.name}: ${form.name}`,
+      form.company ? `• ${m.company}: ${form.company}` : null,
+      `• ${m.reason}: ${reason}`,
+      form.date ? `• ${m.date}: ${new Date(form.date + "T12:00").toLocaleDateString(t.locale)} (${slot})` : null,
       ...(form.message ? ["", form.message] : []),
     ];
     return lines.filter((l) => l !== null).join("\n");
@@ -38,7 +42,7 @@ export default function TurnosPage() {
     const url =
       channel === "whatsapp"
         ? `https://wa.me/${profile.whatsapp}?text=${encodeURIComponent(text)}`
-        : `mailto:${profile.email}?subject=${encodeURIComponent(`Turno ${n} · ${form.reason}`)}&body=${encodeURIComponent(text)}`;
+        : `mailto:${profile.email}?subject=${encodeURIComponent(`${t.book.subject} ${n} · ${reason}`)}&body=${encodeURIComponent(text)}`;
     window.open(url, "_blank", "noopener,noreferrer");
   }
 
@@ -49,10 +53,7 @@ export default function TurnosPage() {
   return (
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.4fr_1fr]">
       <Card>
-        <CardHeader
-          title={dev ? "new issue: entrevista" : "Nuevo turno"}
-          hint="Se envía directo a mi WhatsApp o mail, con todo precargado."
-        />
+        <CardHeader title={dev ? t.book.titleDev : t.book.title} hint={t.book.hint} />
         <form
           className="grid gap-4 p-5 sm:grid-cols-2"
           onSubmit={(e) => {
@@ -61,24 +62,24 @@ export default function TurnosPage() {
           }}
         >
           <label className="block">
-            <span className="text-xs font-medium text-muted">Tu nombre *</span>
-            <input required value={form.name} onChange={set("name")} className={input} placeholder="Ej: Laura Gómez" autoComplete="name" />
+            <span className="text-xs font-medium text-muted">{t.book.name}</span>
+            <input required value={form.name} onChange={set("name")} className={input} placeholder={t.book.namePh} autoComplete="name" />
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-muted">Empresa</span>
-            <input value={form.company} onChange={set("company")} className={input} placeholder="Ej: Acme S.A." autoComplete="organization" />
+            <span className="text-xs font-medium text-muted">{t.book.company}</span>
+            <input value={form.company} onChange={set("company")} className={input} placeholder={t.book.companyPh} autoComplete="organization" />
           </label>
 
           <fieldset className="sm:col-span-2">
-            <legend className="text-xs font-medium text-muted">Motivo</legend>
+            <legend className="text-xs font-medium text-muted">{t.book.reason}</legend>
             <div className="mt-1 flex flex-wrap gap-2">
-              {reasons.map((r) => (
+              {t.book.reasons.map((r, i) => (
                 <button
                   type="button"
                   key={r}
-                  onClick={() => setForm((f) => ({ ...f, reason: r }))}
+                  onClick={() => setForm((f) => ({ ...f, reason: i }))}
                   className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
-                    form.reason === r ? "border-accent bg-accent text-accent-ink" : "border-line text-muted hover:text-ink"
+                    form.reason === i ? "border-accent bg-accent text-accent-ink" : "border-line text-muted hover:text-ink"
                   }`}
                 >
                   {r}
@@ -88,21 +89,23 @@ export default function TurnosPage() {
           </fieldset>
 
           <label className="block">
-            <span className="text-xs font-medium text-muted">Fecha preferida</span>
+            <span className="text-xs font-medium text-muted">{t.book.date}</span>
             <input type="date" value={form.date} onChange={set("date")} className={input} />
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-muted">Franja horaria</span>
-            <select value={form.slot} onChange={set("slot")} className={input}>
-              {slots.map((s) => (
-                <option key={s}>{s}</option>
+            <span className="text-xs font-medium text-muted">{t.book.slot}</span>
+            <select value={form.slot} onChange={(e) => setForm((f) => ({ ...f, slot: Number(e.target.value) }))} className={input}>
+              {t.book.slots.map((s, i) => (
+                <option key={s} value={i}>
+                  {s}
+                </option>
               ))}
             </select>
           </label>
 
           <label className="block sm:col-span-2">
-            <span className="text-xs font-medium text-muted">Mensaje</span>
-            <textarea value={form.message} onChange={set("message")} rows={3} className={input} placeholder="Contame un poco sobre el puesto o el proyecto…" />
+            <span className="text-xs font-medium text-muted">{t.book.message}</span>
+            <textarea value={form.message} onChange={set("message")} rows={3} className={input} placeholder={t.book.messagePh} />
           </label>
 
           <div className="flex flex-col gap-2 sm:col-span-2 sm:flex-row">
@@ -111,7 +114,7 @@ export default function TurnosPage() {
               disabled={!valid}
               className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-accent-ink transition-opacity disabled:opacity-40"
             >
-              <Icon name="message" className="size-4" /> Confirmar por WhatsApp
+              <Icon name="message" className="size-4" /> {t.book.whatsapp}
             </button>
             <button
               type="button"
@@ -119,7 +122,7 @@ export default function TurnosPage() {
               onClick={() => confirm("email")}
               className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-line px-4 py-3 text-sm font-semibold transition-opacity disabled:opacity-40"
             >
-              <Icon name="mail" className="size-4" /> Confirmar por email
+              <Icon name="mail" className="size-4" /> {t.book.email}
             </button>
           </div>
         </form>
@@ -132,24 +135,24 @@ export default function TurnosPage() {
               <span className="mx-auto grid size-12 place-items-center rounded-full bg-ok text-ok-ink">
                 <Icon name="check" className="size-6" />
               </span>
-              <p className="mt-3 font-display text-lg font-bold">¡Turno solicitado!</p>
-              <p className="text-sm text-muted">Comprobante {ticket}</p>
+              <p className="mt-3 font-display text-lg font-bold">{t.book.done}</p>
+              <p className="text-sm text-muted">
+                {t.book.receipt} {ticket}
+              </p>
             </div>
-            <p className="p-5 text-sm text-muted">
-              Se abrió tu mensaje listo para enviar. Mandalo y te respondo a la brevedad.
-            </p>
+            <p className="p-5 text-sm text-muted">{t.book.doneText}</p>
           </Card>
         ) : (
           <Card className="p-5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted">Vista previa del mensaje</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted">{t.book.preview}</p>
             <pre className="mt-3 whitespace-pre-wrap rounded-xl bg-surface-2 p-4 font-sans text-sm leading-relaxed">
-              {valid ? buildMessage() : "Completá tu nombre para ver el mensaje…"}
+              {valid ? buildMessage() : t.book.previewEmpty}
             </pre>
           </Card>
         )}
 
         <Card>
-          <CardHeader title={dev ? "contact.json" : "Datos de contacto"} />
+          <CardHeader title={dev ? "contact.json" : t.book.contact} />
           <ul className="divide-y divide-line text-sm">
             <li>
               <a href={`https://wa.me/${profile.whatsapp}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-5 py-3 hover:bg-surface-2">

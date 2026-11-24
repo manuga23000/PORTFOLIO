@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Icon } from "@/components/Icon";
 import { useMode } from "@/components/ModeProvider";
 import { Badge, Card, StatusDot } from "@/components/ui";
-import { profile, timeline } from "@/data/profile";
+import { useI18n } from "@/i18n";
 
 function shaFor(id: string) {
   let h = 0;
@@ -15,6 +15,8 @@ function shaFor(id: string) {
 
 export default function SeguimientoPage() {
   const { mode } = useMode();
+  const { t, data, lang } = useI18n();
+  const { profile, timeline } = data;
   const steps = [...timeline].sort((a, b) => a.start.localeCompare(b.start));
   const dev = mode === "dev";
 
@@ -24,27 +26,27 @@ export default function SeguimientoPage() {
         <div className="flex items-center gap-3">
           <Image src={profile.photo} alt={profile.name} width={56} height={56} className="size-14 rounded-xl object-cover" />
           <div>
-            <p className="text-xs text-muted">{dev ? "branch" : "Candidato"}</p>
+            <p className="text-xs text-muted">{dev ? "branch" : t.track.candidate}</p>
             <p className="font-display font-bold">{dev ? "main" : profile.shortName}</p>
           </div>
         </div>
         <dl className="mt-5 space-y-3 text-sm">
           <div className="flex justify-between gap-3">
-            <dt className="text-muted">{dev ? "status" : "Estado"}</dt>
+            <dt className="text-muted">{dev ? "status" : t.track.status}</dt>
             <dd className="flex items-center gap-1.5 font-semibold text-ok">
-              <StatusDot /> {dev ? "open to work" : "Disponible"}
+              <StatusDot /> {dev ? "open to work" : t.track.available}
             </dd>
           </div>
           <div className="flex justify-between gap-3">
-            <dt className="text-muted">{dev ? "commits" : "Etapas completadas"}</dt>
+            <dt className="text-muted">{dev ? "commits" : t.track.done}</dt>
             <dd className="font-semibold">{steps.filter((s) => s.end).length}</dd>
           </div>
           <div className="flex justify-between gap-3">
-            <dt className="text-muted">{dev ? "in progress" : "En curso"}</dt>
+            <dt className="text-muted">{dev ? "in progress" : t.track.current}</dt>
             <dd className="font-semibold">{steps.filter((s) => !s.end).length}</dd>
           </div>
           <div className="flex justify-between gap-3">
-            <dt className="text-muted">{dev ? "location" : "Ubicación"}</dt>
+            <dt className="text-muted">{dev ? "location" : t.track.location}</dt>
             <dd className="text-right font-semibold">San Nicolás, BA</dd>
           </div>
         </dl>
@@ -52,7 +54,7 @@ export default function SeguimientoPage() {
           href="/panel/turnos"
           className="mt-5 flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-accent-ink"
         >
-          {dev ? "git merge tu-empresa" : "Sumar a tu empresa"} <Icon name="arrow" className="size-4" />
+          {dev ? (lang === "es" ? "git merge tu-empresa" : "git merge your-company") : t.track.cta} <Icon name="arrow" className="size-4" />
         </Link>
       </Card>
 
@@ -74,7 +76,7 @@ export default function SeguimientoPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     {dev && <span className="font-mono text-xs text-warn">{shaFor(s.id)}</span>}
                     <p className="font-semibold">{s.title}</p>
-                    {current ? <Badge tone="ok">{dev ? "HEAD" : "En curso"}</Badge> : <Badge>{dev ? "merged" : "Completado"}</Badge>}
+                    {current ? <Badge tone="ok">{dev ? "HEAD" : t.track.badgeCurrent}</Badge> : <Badge>{dev ? "merged" : t.track.badgeDone}</Badge>}
                   </div>
                   <p className="text-sm text-muted">
                     {s.company} · {s.place}
@@ -100,12 +102,12 @@ export default function SeguimientoPage() {
               <Icon name="building" className="size-4" />
             </span>
             <div className="flex-1 rounded-xl border border-dashed border-line p-4">
-              <p className="font-semibold">{dev ? "// TODO: próximo commit" : "Próxima etapa: tu empresa"}</p>
+              <p className="font-semibold">{dev ? (lang === "es" ? "// TODO: próximo commit" : "// TODO: next commit") : t.track.nextTitle}</p>
               <p className="mt-0.5 text-sm text-muted">
-                Busco un puesto administrativo donde sumar este perfil de gestión + tecnología.
+                {t.track.nextText}
               </p>
               <Link href="/panel/turnos" className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-accent">
-                Reservar entrevista <Icon name="arrow" className="size-3.5" />
+                {t.track.nextCta} <Icon name="arrow" className="size-3.5" />
               </Link>
             </div>
           </li>
