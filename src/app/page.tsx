@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { type Mode, useMode } from "@/components/ModeProvider";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { profile } from "@/data/profile";
 
 const loadingSteps = {
@@ -46,6 +47,10 @@ export default function LoginPage() {
           maskImage: "radial-gradient(ellipse at center, black 30%, transparent 75%)",
         }}
       />
+
+      <div className="absolute right-4 top-4 sm:right-6 sm:top-6">
+        <ThemeToggle />
+      </div>
 
       <div className="relative w-full max-w-[400px]">
         <div className="rise mb-6 flex items-center justify-center gap-2.5">

@@ -12,6 +12,7 @@
   --color-accent-soft: var(--accent-soft);
   --color-ok: var(--ok);
   --color-ok-soft: var(--ok-soft);
+  --color-ok-ink: var(--ok-ink);
   --color-warn: var(--warn);
   --color-warn-soft: var(--warn-soft);
   --color-side: var(--side);
@@ -37,6 +38,7 @@
   --accent-soft: #e6edfd;
   --ok: #15803d;
   --ok-soft: #dcf5e4;
+  --ok-ink: #ffffff;
   --warn: #b45309;
   --warn-soft: #fdf0dc;
   --side: #14213d;
@@ -47,6 +49,29 @@
   --font-head: var(--font-poppins), var(--font-inter), system-ui, sans-serif;
   --font-code: var(--font-jetbrains), ui-monospace, monospace;
   color-scheme: light;
+}
+
+/* ── Vista Admin en modo noche: azul marino profundo ── */
+[data-mode="admin"][data-theme="dark"] {
+  --bg: #0a1120;
+  --surface: #101a2d;
+  --surface-2: #17223a;
+  --ink: #e8edf7;
+  --muted: #95a2bf;
+  --line: #233150;
+  --accent: #6e98ff;
+  --accent-ink: #0a1120;
+  --accent-soft: rgba(110, 152, 255, 0.15);
+  --ok: #4ade80;
+  --ok-soft: rgba(74, 222, 128, 0.13);
+  --ok-ink: #0a1120;
+  --warn: #fbbf24;
+  --warn-soft: rgba(251, 191, 36, 0.13);
+  --side: #070d19;
+  --side-ink: #e8edf7;
+  --side-muted: #7f8cab;
+  --side-active: rgba(255, 255, 255, 0.06);
+  color-scheme: dark;
 }
 
 /* ── Vista Dev: terminal oscura ── */
@@ -62,6 +87,7 @@
   --accent-soft: rgba(126, 231, 135, 0.12);
   --ok: #7ee787;
   --ok-soft: rgba(126, 231, 135, 0.12);
+  --ok-ink: #0a0e13;
   --warn: #f2cc60;
   --warn-soft: rgba(242, 204, 96, 0.12);
   --side: #0d1218;

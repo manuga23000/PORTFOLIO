@@ -8,6 +8,7 @@ import { profile } from "@/data/profile";
 import { Icon } from "./Icon";
 import { useMode } from "./ModeProvider";
 import { ModeSwitch } from "./ModeSwitch";
+import { ThemeToggle } from "./ThemeToggle";
 import { nav } from "./nav";
 
 function isActive(pathname: string, href: string) {
@@ -104,6 +105,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
               <span className="sm:hidden">
                 <ModeSwitch compact />
               </span>
+              <ThemeToggle />
               <div className="relative">
                 <button
                   onClick={() => setBellOpen((v) => !v)}

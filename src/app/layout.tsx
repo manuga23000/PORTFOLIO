@@ -36,14 +36,15 @@ export const viewport: Viewport = {
   themeColor: "#14213d",
 };
 
-// Aplica la vista guardada (o ?modo=dev) antes del primer pintado, sin parpadeo.
-const modeScript = `(function(){try{var q=new URLSearchParams(location.search).get('modo');var m=(q==='dev'||q==='admin')?q:localStorage.getItem('modo');if(m==='dev'||m==='admin'){document.documentElement.dataset.mode=m;if(q)localStorage.setItem('modo',m)}}catch(e){}})();`;
+// Aplica la vista guardada (o ?modo=dev) y el tema claro/oscuro antes del primer pintado, sin parpadeo.
+const modeScript = `(function(){try{var q=new URLSearchParams(location.search).get('modo');var m=(q==='dev'||q==='admin')?q:localStorage.getItem('modo');if(m==='dev'||m==='admin'){document.documentElement.dataset.mode=m;if(q)localStorage.setItem('modo',m)}var t=localStorage.getItem('tema');if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t}catch(e){}})();`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="es"
       data-mode="admin"
+      data-theme="light"
       suppressHydrationWarning
       className={`${inter.variable} ${poppins.variable} ${jetbrains.variable}`}
     >

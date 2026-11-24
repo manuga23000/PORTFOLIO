@@ -64,7 +64,7 @@ export function Gantt() {
           <div className="w-28 shrink-0 sm:w-44" />
           <div className="relative flex-1">
             <span className="absolute -top-1 bottom-0 w-0.5 bg-ok" style={{ left: pct(nowIdx) }}>
-              <span className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-ok px-1 text-[9px] font-bold text-white">
+              <span className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-ok px-1 text-[9px] font-bold text-ok-ink">
                 HOY
               </span>
             </span>

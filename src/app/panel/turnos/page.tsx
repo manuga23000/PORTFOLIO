@@ -129,7 +129,7 @@ export default function TurnosPage() {
         {ticket ? (
           <Card className="overflow-hidden">
             <div className="bg-ok-soft p-5 text-center">
-              <span className="mx-auto grid size-12 place-items-center rounded-full bg-ok text-white">
+              <span className="mx-auto grid size-12 place-items-center rounded-full bg-ok text-ok-ink">
                 <Icon name="check" className="size-6" />
               </span>
               <p className="mt-3 font-display text-lg font-bold">¡Turno solicitado!</p>

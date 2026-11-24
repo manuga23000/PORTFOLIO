@@ -72,7 +72,7 @@ export default function ReportesPage() {
                     <li key={s} className={`flex items-center gap-3 ${ok || running ? "" : "opacity-35"}`}>
                       <span
                         className={`grid size-5 shrink-0 place-items-center rounded-full ${
-                          ok ? "bg-ok text-white" : "border-2 border-line"
+                          ok ? "bg-ok text-ok-ink" : "border-2 border-line"
                         } ${running ? "animate-spin border-t-accent" : ""}`}
                       >
                         {ok && <Icon name="check" className="size-3" />}
